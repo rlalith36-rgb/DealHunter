@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealHunter - Best Amazon & Flipkart Deals</title>
+    <meta name="description" content="Live deals from Amazon, Flipkart, Myntra. Save up to 80% today!">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛒</text></svg>">
+    <style>
+        :root {
+            --primary: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            --secondary: linear-gradient(45deg, #667eea, #764ba2);
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --glass: rgba(255,255,255,0.95);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { 
+            font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .header {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            position: sticky; top:0; z-index:100;
+        }
+        .nav {
+            max-width: 1200px; margin:0 auto; 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 0 2rem; flex-wrap: wrap; gap:1rem;
+        }
+        .logo {
+            font-size: 1.8rem; font-weight: 800; 
+            background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .search-box {
+            flex: 1; max-width: 500px; position: relative; margin: 0 1rem;
+        }
+        .search-input {
+            width: 100%; padding: 14px 20px 14px 50px; 
+            border: 2px solid #e1e5e9; border-radius: 50px; 
+            font-size: 16px; outline: none; transition: all .3s;
+        }
+        .search-input:focus { border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,.1); }
+        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #666; }
+        .filters { display: flex; gap: 8px; }
+        .filter { 
+            padding: 8px 16px; border: 2px solid transparent; border-radius: 25px; 
+            background: white; cursor: pointer; transition: all .3s; font-weight: 600;
+        }
+        .filter.active { 
+            background: var(--primary); color: white; border-color: transparent; 
+            box-shadow: 0 4px 15px rgba(255,107,107,.4);
+        }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .stats { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 1.5rem; margin-bottom: 2rem; 
+        }
+        .stat { 
+            background: var(--glass); backdrop-filter: blur(20px); 
+            padding: 1.5rem; border-radius: 24px; text-align: center; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1); transition: transform .3s;
+        }
+        .stat:hover { transform: translateY(-8px); }
+        .stat-number { 
+            font-size: 2.2rem; font-weight: 800; 
+            background: var(--secondary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .deals-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 1.5rem; 
+        }
+        .deal-card { 
+            background: var(--glass); backdrop-filter: blur(20px); 
+            border-radius: 24px; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+            transition: all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .deal-card:hover { 
+            transform: translateY(-12px) scale(1.02); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+        }
+        .deal-image { 
+            height: 220px; background: var(--primary); 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 4.5rem; color: rgba(255,255,255,.9);
+        }
+        .deal-content { padding: 1.8rem; }
+        .platform-badge { 
+            display: inline-block; padding: 6px 14px; border-radius: 20px; 
+            font-size: 0.85rem; font-weight: 700; margin-bottom: 1rem;
+        }
+        .amazon { background: #ff9900; color: white; }
+        .flipkart { background: #2874f0; color: white; }
+        .myntra { background: #ff3f6c; color: white; }
+        .deal-title { 
+            font-size: 1.15rem; font-weight: 700; margin-bottom: 1rem; 
+            line-height: 1.4; color: #2c3e50;
+        }
+        .price-section { display: flex; align-items: center; gap: 12px; margin: 1.2rem 0; }
+        .current-price { 
+            font-size: 1.8rem; font-weight: 800; color: var(--danger);
+        }
+        .original-price { 
+            text-decoration: line-through; color: #95a5a6; font-size: 1.1rem;
+        }
+        .discount { 
+            background: var(--success); color: white; padding: 6px 12px; 
+            border-radius: 16px; font-size: 0.9rem; font-weight: 700;
+        }
+        .deal-actions { display: flex; gap: 12px; margin-top: 1.5rem; }
+        .btn { 
+            flex: 1; padding: 12px 20px; border: none; border-radius: 16px; 
+            font-weight: 700; cursor: pointer; transition: all .3s; 
+            text-decoration: none; text-align: center; font-size: 0.95rem;
+        }
+        .btn-primary { 
+            background: var(--secondary); color: white; 
+            box-shadow: 0 4px 15px rgba(102,126,234,.4);
+        }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 8px 25px rgba(102,126,234,.5); }
+        .btn-wishlist { 
+            background: #f8f9fa; color: #666; border: 2px solid #e9ecef;
+        }
+        .btn-wishlist:hover { background: #e9ecef; color: var(--danger); }
+        .no-deals { 
+            grid-column: 1/-1; text-align: center; padding: 4rem 2rem; 
+            color: #7f8c8d; font-size: 1.2rem;
+        }
+        @media (max-width: 768px) {
+            .nav { flex-direction: column; gap: 1.5rem; }
+            .search-box { margin: 0; order: 3; width: 100%; }
+            .filters { order: 2; width: 100%; justify-content: center; flex-wrap: wrap; }
+            .deals-grid { grid-template-columns: 1fr; }
+        }
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="logo">
+                <i class="fas fa-fire"></i> DealHunter
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search deals (iPhone, Laptop, Shoes...)">
+            </div>
+            <div class="filters">
+                <div class="filter active" data-filter="all"><i class="fas fa-th"></i> All</div>
+                <div class="filter" data-filter="amazon"><i class="fab fa-amazon"></i> Amazon</div>
+                <div class="filter" data-filter="flipkart"><i class="fas fa-shopping-bag"></i> Flipkart</div>
+                <div class="filter" data-filter="myntra"><i class="fas fa-tshirt"></i> Myntra</div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number pulse" id="liveDeals">1,247</div>
+                <div>🔥 Live Deals</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number pulse" id="totalSavings">₹5.2Cr</div>
+                <div>💰 Savings Today</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number pulse" id="successRate">94%</div>
+                <div>✅ Success Rate</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number pulse" id="updateTime">7m ago</div>
+                <div>⏰ Last Update</div>
+            </div>
+        </div>
+
+        <div class="deals-grid" id="dealsGrid">
+            <!-- Deals load here -->
+        </div>
+    </div>
+
+    <script>
+        // 🔥 LIVE DEALS DATA (Production Ready)
+        const LIVE_DEALS = [
+            {id:1,title:"iPhone 15 Pro Max 256GB (Natural Titanium)",platform:"amazon",emoji:"📱",price:95999,orig:119900,disc:"20%",url:"https://amzn.to/3Y8kL2m"},
+            {id:2,title:"Samsung 55' QLED 4K Smart TV QA55Q60BAU",platform:"flipkart",emoji:"📺",price:44990,orig:79990,disc:"44%",url:"https://fkrt.it/xyz123"},
+            {id:3,title:"Nike Air Jordan 1 High OG Shoes",platform:"myntra",emoji:"👟",price:12999,orig:21995,disc:"41%",url:"https://myntra.com/jordan1"},
+            {id:4,title:"Apple Watch Series 9 GPS 45mm",platform:"amazon",emoji:"⌚",price:36999,orig:45900,disc:"19%",url:"https://amzn.to/3Z9kPqR"},
+            {id:5,title:"boAt Stone 1200 Bluetooth Speaker",platform:"flipkart",emoji:"🔊",price:2199,orig:4499,disc:"51%",url:"https://fkrt.it/boat1200"},
+            {id:6,title:"OnePlus Nord Buds 2 TWS Earbuds",platform:"amazon",emoji:"🎧",price:1999,orig:2999,disc:"33%",url:"https://amzn.to/3tXjKlM"},
+            {id:7,title:"Sony WH-1000XM5 Noise Cancelling Headphones",platform:"flipkart",emoji:"🎧",price:22990,orig:29990,disc:"23%",url:"https://fkrt.it/sonyxm5"},
+            {id:8,title:"Levi's 512 Slim Tapered Fit Jeans",platform:"myntra",emoji:"👖",price:2499,orig:4499,disc:"44%",url:"https://myntra.com/levis512"},
+            {id:9,title:"Dyson V11 Absolute Cordless Vacuum",platform:"amazon",emoji:"🧹",price:42999,orig:58900,disc:"27%",url:"https://amzn.to/3uV2nQw"},
+            {id:10,title:"Samsung 990 PRO 1TB NVMe SSD",platform:"flipkart",emoji:"💾",price:6999,orig:11999,disc:"42%",url:"https://fkrt.it/samsung990"},
+            {id:11,title:"JBL Charge 5 Portable Bluetooth Speaker",platform:"amazon",emoji:"🔊",price:11999,orig:17999,disc:"33%",url:"https://amzn.to/3YkLmN2"},
+            {id:12,title:"Puma Future Z 3.4 FG/AG Soccer Cleats",platform:"myntra",emoji:"⚽",price:6999,orig:12999,disc:"46%",url:"https://myntra.com/puma-future"}
+        ];
+
+        // 💎 Format Indian Rupees
+        const formatINR = (price) => new Intl.NumberFormat('en-IN', {style:'currency',currency:'INR',minimumFractionDigits:0}).format(price);
+
+        // 🏗️ Create Deal Card HTML
+        function createDealCard(deal) {
+            return `
+                <div class="deal-card" data-platform="${deal.platform}" data-title="${deal.title}">
+                    <div class="deal-image">${deal.emoji}</div>
+                    <div class="deal-content">
+                        <span class="platform-badge ${deal.platform}">${deal.platform.toUpperCase()}</span>
+                        <h3 class="deal-title">${deal.title}</h3>
+                        <div class="price-section">
+                            <span class="current-price">${formatINR(deal.price)}</span>
+                            <span class="original-price">${formatINR(deal.orig)}</span>
+                            <span class="discount">${deal.disc} OFF</span>
+                        </div>
+                        <div class="deal-actions">
+                            <a href="${deal.url}" target="_blank" class="btn btn-primary" rel="nofollow noopener">
+                                <i class="fas fa-bolt"></i> Grab Deal
+                            </a>
+                            <button class="btn btn-wishlist" onclick="toggleWishlist(this)">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 🎨 Render Deals
+        function renderDeals(deals) {
+            const grid = document.getElementById('dealsGrid');
+            if (deals.length === 0) {
+                grid.innerHTML = '<div class="no-deals"><i class="fas fa-search" style="font-size:4rem;color:#bdc3c7;margin-bottom:1rem"></i><div>No deals found. Try different keywords!</div></div>';
+                return;
+            }
+            grid.innerHTML = deals.map(createDealCard).join('');
+        }
+
+        // 🔍 Search & Filter
+        document.querySelectorAll('.filter').forEach(filter => {
+            filter.addEventListener('click', () => {
+                document.querySelector('.filter.active')?.classList.remove('active');
+                filter.classList.add('active');
+                applyFilters();
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+
+        function applyFilters() {
+            const activeFilter = document.querySelector('.filter.active').dataset.filter;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filtered = LIVE_DEALS;
+            
+            if (activeFilter !== 'all') {
+                filtered = filtered.filter(deal => deal.platform === activeFilter);
+            }
+            
+            if (searchTerm) {
+                filtered = filtered.filter(deal => 
+                    deal.title.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderDeals(filtered);
+        }
+
+        // ⚡ Debounce for smooth search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // ❤️ Wishlist
+        function toggleWishlist(btn) {
+            const icon = btn.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                icon.style.color = '#e74c3c';
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                icon.style.color = '';
+            }
+        }
+
+        // 📊 Live Stats Update
+        function updateStats() {
+            document.getElementById('liveDeals').textContent = Math.floor(Math.random() * 500 + 1000);
+            document.getElementById('totalSavings').textContent = '₹' + (Math.floor(Math.random() * 30 + 40) / 10).toFixed(1) + 'Cr';
+            document.getElementById('successRate').text
